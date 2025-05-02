@@ -1,0 +1,3 @@
+- 5-2 lkh
+    - initialize repo
+    - upload data processing demo
