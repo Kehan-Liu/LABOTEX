@@ -6,22 +6,11 @@ from openai import OpenAI
 import yaml
 import ijson
 
-# query = "晶体学"
-
-# dir_name = "book1" # where the PDF file is located
-# model_name = "deepseek-v3" 
-
-# # Load OpenAI API key and base URL from config.yaml
-# config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../config.yaml"))
-# with open(config_path, "r") as f:
-#     config = yaml.safe_load(f)
-# api_key = config.get("openai_api_key")
-# base_url = config.get("openai_base_url")
-# json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../books/{dir_name}/{dir_name}.json"))
-
-# client = OpenAI(api_key=api_key, base_url=base_url)
 
 def load_experiments_json(json_path):
+    """
+    Load the whole json file of the experiment book.
+    """
     with open(json_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -41,9 +30,9 @@ def get_titles_from_json(json_path):
         experiments = load_experiments_json(dir_name)
         return [item.get("title", "") for item in experiments if "title" in item]
 
-def find_best_title_match(user_title, titles : str, chat_model, client):
+def find_best_title_match(user_title, titles : str, chat_model, client):    
+    """Find the title that best matches the query (user_title)."""
     query = user_title
-    """Find the title that best matches the query."""
     response = client.chat.completions.create(
         model=chat_model,
         messages=[
@@ -67,34 +56,26 @@ def get_text_by_title(cfg):
     user_title = cfg.title
     titles = get_titles_from_json(json_path)
     title = find_best_title_match(user_title, str(titles), chat_model, client)
-    # print(title.lower()) # test 多了单引号
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             for item in ijson.items(f, "item"):
-                # print(item.get("title", "").lower()) # test
                 if item.get("title", "").lower() == title.lower():
-                    # print("1") # test
                     return item.get("text", "")
             # Fallback: try substring match
             f.seek(0)
             for item in ijson.items(f, "item"):
                 if title.lower() in item.get("title", "").lower():
-                    # print("2") # test
                     return item.get("text", "")
-        # print("3") # test
         return ""
     except ImportError:
         # Fallback to loading the whole file if ijson is not available
         experiments = load_experiments_json()
         for item in experiments:
             if item.get("title", "").lower() == title.lower():
-                # print("4") # test
                 return item.get("text", "")
         for item in experiments:
             if title.lower() in item.get("title", "").lower():
-                # print("5")
                 return item.get("text", "")
-        # print("6") # test
         return ""
 
 def write_experiment_introduction(cfg):
@@ -131,11 +112,4 @@ def write_experiment_introduction(cfg):
         f.write(code + "\n")
     return response.choices[0].message.content
 
-# titles = get_titles_from_json() # titles is a python list.
-# title = find_best_title_match(query, str(titles))
-# text = get_text_by_title(title)
-# code = write_experiment_introduction(title, text)
-# output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../tmp/output.txt"))
-# with open(output_path, "a", encoding="utf-8") as f:
-#     f.write(code + "\n")
 

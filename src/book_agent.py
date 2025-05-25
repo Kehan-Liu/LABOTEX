@@ -7,28 +7,11 @@ import io
 from PIL import Image
 import base64
 
-# dir_name = "book1" # where the PDF file is located
-# vl_model_name = "qwen2.5-vl-72b-instruct"
-# model_name = "deepseek-v3"
-
-# Load OpenAI API key and base URL from config.yaml
-# config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../config.yaml"))
-# with open(config_path, "r") as f:
-#     config = yaml.safe_load(f)
-# api_key = config.get("openai_api_key")
-# base_url = config.get("openai_base_url")
-
-# Find the PDF file in the target directory
-# books_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../books/{dir_name}"))
-# pdf_filename = next((f for f in os.listdir(books_dir) if f.lower().endswith(".pdf")), None)
-# if not pdf_filename:
-#     raise FileNotFoundError(f"No PDF file found in {books_dir}")
-# pdf_path = os.path.join(books_dir, pdf_filename)
-# json_path = os.path.join(books_dir, f"{dir_name}.json")
-
-# client = OpenAI(api_key=api_key, base_url=base_url)
 
 def judge_new_section(base64_image, vl_model_name, client):
+    """
+    judge whether the given image is a new section start page.
+    """
     response = client.chat.completions.create(
         model=vl_model_name,
         messages=[
@@ -45,6 +28,9 @@ def judge_new_section(base64_image, vl_model_name, client):
     return response.choices[0].message.content
 
 def extract_title(base64_image, vl_model_name, client):
+    """
+    Used for the start page of a new section. Extract the title of the new section from the page.
+    """
     response = client.chat.completions.create(
         model=vl_model_name,
         messages=[
@@ -61,7 +47,10 @@ def extract_title(base64_image, vl_model_name, client):
     return response.choices[0].message.content
 
 def pdf_to_json(cfg):
-    # first load the config from the cfg object
+    """
+    load the experiment book pdf into json file.
+    """
+    # first load the config from the cfg object.
     dir_name = cfg.dir_name
     vl_model_name = cfg.vl_model
     api_key = cfg.openai_api_key
@@ -73,11 +62,13 @@ def pdf_to_json(cfg):
     pdf_path = os.path.join(books_dir, pdf_filename)
     json_path = os.path.join(books_dir, f"{dir_name}.json")
     client = OpenAI(api_key=api_key, base_url=base_url)
-
+    # Remove the existing json.
     if os.path.exists(json_path):
         os.remove(json_path)
+    # Used to record the title and content fields of the json file.
     title = None
     content = ""
+    # Extract text from each page of the PDF file.
     images = convert_from_path(pdf_path)
     for i, image in enumerate(images):
         # Encode image directly from memory
