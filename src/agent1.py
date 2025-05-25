@@ -58,8 +58,8 @@ def find_best_title_match(user_title, titles : str, chat_model, client):
 def get_text_by_title(cfg):
     """Retrieve the 'text' corresponding to the user title."""
     chat_model = cfg.chat_model
-    api_key = cfg.openai_api_key
-    base_url = cfg.openai_base_url
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
     dir_name = cfg.dir_name
     chat_model = cfg.chat_model
     client = OpenAI(api_key=api_key, base_url=base_url)
@@ -100,8 +100,8 @@ def get_text_by_title(cfg):
 def write_experiment_introduction(cfg):
     """Ask the LLM to write an experiment introduction using the provided text."""
     chat_model = cfg.chat_model
-    api_key = cfg.openai_api_key
-    base_url = cfg.openai_base_url
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
     dir_name = cfg.dir_name
     chat_model = cfg.chat_model
     client = OpenAI(api_key=api_key, base_url=base_url)

@@ -9,3 +9,5 @@ numpy==1.26.4
 pandas==2.2.2
 pdf2image==1.17.0
 ijson==3.4.0
+matplotlib
+omegaconf

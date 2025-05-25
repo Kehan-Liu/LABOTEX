@@ -1,0 +1,6 @@
+title:
+dir_name:
+data_dir: /root/LABOTEX/data
+
+chat_model: deepseek-v3
+prompt: 这是一个简单的计算弹簧筋度系数实验。multi_data中有我测量的6组数据，single_data中是弹簧原长，单位是cm。
