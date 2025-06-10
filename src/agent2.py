@@ -19,14 +19,14 @@ def data_processing_agent(cfg):
     tools = data_tool_factory(cfg)
     tools.append(write_latex)
 
-    # text = get_text_by_title(cfg)
-    text = """
-# 实验数据处理
-给出你测量的弹簧的拉力和伸长量的数据表格，写明单位。
-作出弹簧拉力F 和 弹簧伸长量 x 的关系图像，用最小二乘法，计算弹簧筋度系数 k。
-# 分析讨论
-实验的误差分析
-"""
+    text = get_text_by_title(cfg)
+#     text = """
+# # 实验数据处理
+# 给出你测量的弹簧的拉力和伸长量的数据表格，写明单位。
+# 作出弹簧拉力F 和 弹簧伸长量 x 的关系图像，用最小二乘法，计算弹簧筋度系数 k。
+# # 分析讨论
+# 实验的误差分析
+# """
     @tool
     def read_instruction(query: str) -> str:
         """

@@ -1,5 +1,5 @@
-title:
-dir_name:
+title: 弹簧劲度系数
+dir_name: test
 data_dir: /root/LABOTEX/data
 
 chat_model: deepseek-v3
