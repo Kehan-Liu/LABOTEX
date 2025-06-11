@@ -57,8 +57,13 @@ def data_tool_factory(cfg):
         """
         query = query.strip()
         print(f"Executing query: {query}")
+        local_vars = {
+            "dfs": dfs,
+            "np": np,
+            "pd": pd,
+        }
         try:
-            exec(query)
+            exec(query, {}, local_vars)
         except Exception as e:
             return f"Exception occurs: {str(e)}"
 

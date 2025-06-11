@@ -62,7 +62,7 @@ Final Answer: Finish!
 
 开始！
 
-Task: {input}
+Explanation: {input}
 Thought: {agent_scratchpad}
 """
     prompt = PromptTemplate(
