@@ -1,6 +1,6 @@
 title: 弹簧劲度系数
 dir_name: test
-data_dir: /root/LABOTEX/data
+data_dir: /home/tiger/Yao_Class/LLM/labotex/data
 
 chat_model: deepseek-v3
 prompt: 这是一个简单的计算弹簧筋度系数实验。multi_data中有我测量的6组数据，single_data中是弹簧原长，单位是cm。

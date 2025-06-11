@@ -1,84 +1,96 @@
 import os
+import matplotlib.font_manager
 from langchain.agents import tool, Tool
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Tuple, Union
 import matplotlib.pyplot as plt
 from pydantic import BaseModel, Field
+from matplotlib.font_manager import FontProperties
+import matplotlib
 import json
 
 # data processing
 def data_tool_factory(cfg):
-    single_data_path = os.path.join(cfg.data_dir, "single_data.csv")
-    multi_data_path = os.path.join(cfg.data_dir, "multi_data.csv")
-    single_data = pd.read_csv(single_data_path, header=0)
-    multi_data = pd.read_csv(multi_data_path, header=0, index_col=0)
-    processed_single_data_path = os.path.join(cfg.data_dir, "processed_single_data.csv")
-    processed_multi_data_path = os.path.join(cfg.data_dir, "processed_multi_data.csv")
+    
+    csv_files = [f for f in os.listdir(cfg.data_dir) if f.endswith('.csv')]
+    df_names = [f[:-4] for f in csv_files]  # Remove '.csv' extension for names
+    dfs = {}
+    for i, file in enumerate(csv_files):
+        file_path = os.path.join(cfg.data_dir, file)
+        df = pd.read_csv(file_path)
+        dfs[df_names[i]] = df
 
+    matplotlib.font_manager.fontManager.addfont("NotoSerifSC-Regular.ttf")
+    matplotlib.rcParams['font.family'] = 'sans-serif'
+    font_prop = FontProperties(fname="NotoSerifSC-Regular.ttf")
+    plt.rcParams['font.sans-serif'] = [font_prop.get_name()]
+    matplotlib.rcParams['axes.unicode_minus'] = False
+    
     figures = []
-    plt.rcParams['font.sans-serif'] = ['SimHei']
 
     # data processor
     @tool
     def data_accessor(df_name: str) -> str:
         """
-        Access dataframe content. Input: 'single_data' or 'multi_data'.
+        Access dataframe content. Input is name of a dataframe or 'all' to access all dataframes.
         Don't include quotes around the name.
         """
         print(f"Accessing dataframe: {df_name}")
         df_name = df_name.strip()
-        if df_name == "single_data":
-            return single_data.to_string()
-        elif df_name == "multi_data":
-            return multi_data.to_string()
+        if df_name == "all":
+            all_data = "\n".join([f"{name}:\n{df.to_string()}" for name, df in dfs.items()])
+            return all_data
+        elif df_name in dfs.keys():
+            return dfs[df_name].to_string()
         else:
-            return "Invalid name. Please use 'single_data' or 'multi_data'."
+            return f"Invalid name. Name should be in {df_names} or 'all'."
 
     @tool
     def data_processor(query: str) -> str:
         """
-        Process dataframe using a string of Python code. 
-        Use variables `single_data` and `multi_data`. For example: 
-        `single_data['log_col'] = np.log(single_data['value'])`. 
+        Process dataframe using a string of Python code.
+        Each dataframe is a field in the `dfs` dictionary.
+        For example: 
+        `dfs['data']['log_col'] = np.log(dfs['data']['value'])`. 
         Don't include quotes around the code.
         """
         query = query.strip()
         print(f"Executing query: {query}")
         try:
             exec(query)
-            return f"Single data dataframe:\n{single_data.to_string()}\n\nMulti data dataframe:\n{multi_data.to_string()}"
         except Exception as e:
             return f"Exception occurs: {str(e)}"
 
-    @tool
-    def data_saver(name: str) -> str:
-        """
-        Save dataframe to CSV. Input: 'single_data', 'multi_data', or 'all'.
-        Don't include quotes around the name.
-        """
-        name = name.strip()
-        if name == "single_data":
-            single_data.to_csv(processed_single_data_path, header=True, index=False)
-            return "Single data saved"
-        elif name == "multi_data":
-            multi_data.to_csv(processed_multi_data_path, header=True, index=True)
-            return "Multi data saved"
-        elif name == "all":
-            single_data.to_csv(processed_single_data_path, header=True, index=False)
-            multi_data.to_csv(processed_multi_data_path, header=True, index=True)
-            return "All data saved"
-        else:
-            return "Invalid name. Please use 'single', 'multi' or 'all'."
+    # @tool
+    # def data_saver(name: str) -> str:
+    #     """
+    #     Save dataframe to CSV. Input: 'single_data', 'multi_data', or 'all'.
+    #     Don't include quotes around the name.
+    #     """
+    #     name = name.strip()
+    #     if name == "single_data":
+    #         single_data.to_csv(processed_single_data_path, header=True, index=False)
+    #         return "Single data saved"
+    #     elif name == "multi_data":
+    #         multi_data.to_csv(processed_multi_data_path, header=True, index=True)
+    #         return "Multi data saved"
+    #     elif name == "all":
+    #         single_data.to_csv(processed_single_data_path, header=True, index=False)
+    #         multi_data.to_csv(processed_multi_data_path, header=True, index=True)
+    #         return "All data saved"
+    #     else:
+    #         return "Invalid name. Please use 'single', 'multi' or 'all'."
 
     # Plot tool
     @tool()
     def plot_curve(query: str) -> str:
         """
-        Plot a curve using two columns from the 'multi_data' dataframe and save it as a PNG file.
+        Plot a curve using two columns from a dataframe and save it as a PNG file.
         Don't include quotes around names.
 
         Parameters:
+        - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
         - index: list of row indices, or a tuple of start and end indices
@@ -87,6 +99,7 @@ def data_tool_factory(cfg):
 
         Parameters are in a dict format, with no quotes around the names:
         {
+            "df_name":
             "x":
             "y":
             "index":
@@ -100,18 +113,22 @@ def data_tool_factory(cfg):
         try:
             query = query.strip()
             query_dict = json.loads(query)
+            df_name = query_dict.get("df_name")
             x = query_dict.get("x")
             y = query_dict.get("y")
             index = query_dict.get("index")
             title = query_dict.get("title")
             name = query_dict.get("name")
 
-            if x not in multi_data.columns or y not in multi_data.columns:
+            if df_name not in df_names:
+                return f"Invalid dataframe name: {df_name}. Available dataframes are: {df_names}."
+
+            if x not in dfs[df_name].columns or y not in dfs[df_name].columns:
                 return f"Invalid column names: {x}, {y}. Please check the dataframe."
             if isinstance(index, list):
-                subset = multi_data.loc[index]
+                subset = dfs[df_name].loc[index]
             elif isinstance(index, tuple) and len(index) == 2:
-                subset = multi_data.iloc[index[0]:index[1]]
+                subset = dfs[df_name].iloc[index[0]:index[1]]
             else:
                 return "Invalid index. Please provide a list of indices or a tuple of start and end indices."
             
@@ -139,6 +156,7 @@ def data_tool_factory(cfg):
         Don't include quotes around names.
 
         Parameters:
+        - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
         - index: list of row indices, or a tuple of start and end indices
@@ -147,6 +165,7 @@ def data_tool_factory(cfg):
 
         Parameters are in a dict format, with no quotes around the names:
         {
+            "df_name":
             "x":
             "y":
             "index":
@@ -160,18 +179,22 @@ def data_tool_factory(cfg):
         try:
             query = query.strip()
             query_dict = json.loads(query)
+            df_name = query_dict.get("df_name")
             x = query_dict.get("x")
             y = query_dict.get("y")
             index = query_dict.get("index")
             title = query_dict.get("title")
             name = query_dict.get("name")
 
-            if x not in multi_data.columns or y not in multi_data.columns:
+            if df_name not in df_names:
+                return f"Invalid dataframe name: {df_name}. Available dataframes are: {df_names}."
+
+            if x not in dfs[df_name].columns or y not in dfs[df_name].columns:
                 return f"Invalid column names: {x}, {y}. Please check the dataframe."
             if isinstance(index, list):
-                subset = multi_data.loc[index]
+                subset = dfs[df_name].loc[index]
             elif isinstance(index, tuple) and len(index) == 2:
-                subset = multi_data.iloc[index[0]:index[1]]
+                subset = dfs[df_name].iloc[index[0]:index[1]]
             else:
                 return "Invalid index. Please provide a list of indices or a tuple of start and end indices."
             
@@ -212,7 +235,7 @@ def data_tool_factory(cfg):
             return "No figures saved."
         return "\n".join(figures)
     
-    tools = [data_accessor, data_processor, data_saver, plot_curve, plot_least_squares, get_figures]
+    tools = [data_accessor, data_processor, plot_curve, plot_least_squares, get_figures]
     return tools
 
 # latex writer

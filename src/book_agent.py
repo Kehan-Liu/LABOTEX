@@ -1,10 +1,8 @@
 import os
-import yaml
 import json
 from openai import OpenAI
 from pdf2image import convert_from_path
 import io
-from PIL import Image
 import base64
 
 

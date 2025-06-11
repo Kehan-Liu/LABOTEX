@@ -1,9 +1,6 @@
 import os
 import json
-from pdfminer.high_level import extract_text
-import requests
 from openai import OpenAI
-import yaml
 import ijson
 
 
@@ -27,7 +24,7 @@ def get_titles_from_json(json_path):
         return titles
     except ImportError:
         # Fallback to loading the whole file if ijson is not available
-        experiments = load_experiments_json(dir_name)
+        experiments = load_experiments_json(json_path)
         return [item.get("title", "") for item in experiments if "title" in item]
 
 def find_best_title_match(user_title, titles : str, chat_model, client):    

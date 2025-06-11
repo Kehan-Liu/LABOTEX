@@ -7,11 +7,14 @@ from src.agent3 import write_final_report
 import getpass
 
 cfg = OmegaConf.load('config.yaml')
-os.environ["OPENAI_API_KEY"] = getpass.getpass("Please enter your OpenAI API key: ")
-os.environ["OPENAI_BASE_URL"] = getpass.getpass("Please enter your OpenAI base URL: ")
+# os.environ["OPENAI_API_KEY"] = getpass.getpass("Please enter your OpenAI API key: ")
+# os.environ["OPENAI_BASE_URL"] = getpass.getpass("Please enter your OpenAI base URL: ")
 
-write_experiment_introduction(cfg)
+# with open('tmp/output.txt', 'w') as f:
+#     f.truncate(0)
 
-data_processing_agent(cfg)
+# write_experiment_introduction(cfg)
+
+# data_processing_agent(cfg)
 
 write_final_report(cfg)
