@@ -3,8 +3,8 @@ from src.tools import data_tool_factory, write_latex
 from src.agent1 import summarize_text
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_react_agent, AgentExecutor, tool
-from langchain.memory import ConversationSummaryBufferMemory
 from langchain.prompts import PromptTemplate
+from langchain.memory import ConversationBufferMemory
 
 def data_processing_agent(cfg):
     CHAT_MODEL = cfg.chat_model
@@ -27,42 +27,33 @@ def data_processing_agent(cfg):
 # # 分析讨论
 # 实验的误差分析
 # """
-    @tool
-    def read_instruction(query: str) -> str:
-        """
-        Read the experiment instruction.
-        Input is the experiment title.
-        """
-        return text
-    tools.append(read_instruction)
-
     react_prompt = """
 你需要完成一个物理实验的数据处理任务，并用 LaTeX 格式输出实验报告的 4. 实验数据处理 和 5. 分析讨论 两个部分。注意一定要使用 LaTeX 格式输出。
 你可以使用以下工具：
 
 {tools}
 
-你需要一步一步地思考，在每完成一个部分后用`read_instruction`阅读下一项任务的要求，在处理过程中使用工具，确保完成了全部内容，最后用`write_latex`把结果写进文件中。
+你需要一步一步地思考，在处理过程中使用工具，确保完成了全部内容，最后用`write_latex`把结果写进文件中。
 
-使用以下格式：
+严格使用以下格式，不要用加粗或Markdown语法
 
-Question: 还有哪些部分没完成
-Thought: 列出你还没有做的部分有哪些，比如：B, C 部分的数据处理和写LaTeX报告，用来提醒自己
+Question: 你要执行的任务
+Thought: 思考你要做什么
 Action: 要采取的行动，应该是 [{tool_names}] 中的一个
 Action Input: 行动的输入
 Observation: 行动的结果
 ... (这个 Thought/Action/Action Input/Observation 可以重复 N 次)
-Thought: 我完成了数据处理任务，该写实验报告了
+Thought: 我完成了数据处理任务，现在写实验报告
 Action: write_latex
-Action Input: 实验报告内容，LaTeX 格式，只包括你要写的章节，要包括原始数据表格（用 LaTeX 表格格式），和你画的所有图
+Action Input: 实验报告内容，LaTeX 格式，只包括实验数据处理和分析讨论两部分
 Observation: 成功与否
 Thought: 我完成了任务
 Final Answer: Finish!
 
 开始！
 
-Explanation: {input}
-History: {agent_scratchpad}
+Task: {input}
+Thought: {agent_scratchpad}
 """
     prompt = PromptTemplate(
         input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
@@ -77,14 +68,12 @@ History: {agent_scratchpad}
         agent=agent,
         tools=tools,
         verbose=True,
-        memory=ConversationSummaryBufferMemory(
+        memory=ConversationBufferMemory(
             memory_key="chat_history",
-            llm=chat_model,
-            max_token_limit=8000,
             return_messages=True,
-        )
+        ),
     )
 
     agent_executor.invoke({
-        "input": cfg.prompt
+        "input": text + cfg.prompt
     })

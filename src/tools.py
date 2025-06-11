@@ -3,9 +3,7 @@ import matplotlib.font_manager
 from langchain.agents import tool, Tool
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Tuple, Union
 import matplotlib.pyplot as plt
-from pydantic import BaseModel, Field
 from matplotlib.font_manager import FontProperties
 import matplotlib
 import json
@@ -98,7 +96,6 @@ def data_tool_factory(cfg):
         - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
-        - index: list of row indices
         - title: title of the plot
         - name: name of the file (without extension)
 
@@ -107,7 +104,6 @@ def data_tool_factory(cfg):
             "df_name":
             "x":
             "y":
-            "index":
             "title":
             "name":
         }
@@ -121,7 +117,6 @@ def data_tool_factory(cfg):
             df_name = query_dict.get("df_name")
             x = query_dict.get("x")
             y = query_dict.get("y")
-            index = query_dict.get("index")
             title = query_dict.get("title")
             name = query_dict.get("name")
 
@@ -130,15 +125,9 @@ def data_tool_factory(cfg):
 
             if x not in dfs[df_name].columns or y not in dfs[df_name].columns:
                 return f"Invalid column names: {x}, {y}. Please check the dataframe."
-            if isinstance(index, list):
-                subset = dfs[df_name].loc[index]
-            elif isinstance(index, tuple) and len(index) == 2:
-                subset = dfs[df_name].iloc[index[0]:index[1]]
-            else:
-                return "Invalid index. Please provide a list of indices or a tuple of start and end indices."
             
             plt.figure(figsize=(10, 6))
-            plt.plot(subset[x], subset[y], marker='o')
+            plt.plot(dfs[df_name][x], dfs[df_name][y], marker='o')
             plt.xlabel(x)
             plt.ylabel(y, rotation=0)
             plt.title(title)
@@ -164,7 +153,6 @@ def data_tool_factory(cfg):
         - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
-        - index: list of row indices
         - title: title of the plot
         - name: name of the file (without extension)
 
@@ -173,7 +161,6 @@ def data_tool_factory(cfg):
             "df_name":
             "x":
             "y":
-            "index":
             "title":
             "name":
         }
@@ -187,7 +174,6 @@ def data_tool_factory(cfg):
             df_name = query_dict.get("df_name")
             x = query_dict.get("x")
             y = query_dict.get("y")
-            index = query_dict.get("index")
             title = query_dict.get("title")
             name = query_dict.get("name")
 
@@ -196,15 +182,9 @@ def data_tool_factory(cfg):
 
             if x not in dfs[df_name].columns or y not in dfs[df_name].columns:
                 return f"Invalid column names: {x}, {y}. Please check the dataframe."
-            if isinstance(index, list):
-                subset = dfs[df_name].loc[index]
-            elif isinstance(index, tuple) and len(index) == 2:
-                subset = dfs[df_name].iloc[index[0]:index[1]]
-            else:
-                return "Invalid index. Please provide a list of indices or a tuple of start and end indices."
             
-            x_vals = subset[x].values
-            y_vals = subset[y].values
+            x_vals = dfs[df_name][x].values
+            y_vals = dfs[df_name][y].values
 
             slope, intercept = np.polyfit(x_vals, y_vals, deg=1)
             x_min, x_max = x_vals.min(), x_vals.max()
@@ -230,17 +210,8 @@ def data_tool_factory(cfg):
         
         except Exception as e:
             return f"Exception occurs: {str(e)}"
-        
-    @tool
-    def get_figures() -> str:
-        """
-        Get the list of figures saved.
-        """
-        if not figures:
-            return "No figures saved."
-        return "\n".join(figures)
-    
-    tools = [data_accessor, data_processor, plot_curve, plot_least_squares, get_figures]
+
+    tools = [data_accessor, data_processor, plot_curve, plot_least_squares]
     return tools
 
 # latex writer
