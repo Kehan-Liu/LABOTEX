@@ -98,7 +98,7 @@ def data_tool_factory(cfg):
         - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
-        - index: list of row indices, or a tuple of start and end indices
+        - index: list of row indices
         - title: title of the plot
         - name: name of the file (without extension)
 
@@ -164,7 +164,7 @@ def data_tool_factory(cfg):
         - df_name: name of the dataframe to use
         - x: column name for the x-axis
         - y: column name for the y-axis
-        - index: list of row indices, or a tuple of start and end indices
+        - index: list of row indices
         - title: title of the plot
         - name: name of the file (without extension)
 
@@ -247,7 +247,7 @@ def data_tool_factory(cfg):
 @tool
 def write_latex(content: str) -> str:
     """
-    Write you LaTeX code here for the experiment report.
+    Write you LaTeX code here for the experiment report, including tables of raw data and figures.
     Only include part of the code corresponding to the sections you need to write.
     Don't use quotes around the code.
     Format:

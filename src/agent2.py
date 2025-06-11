@@ -1,9 +1,9 @@
 import os
 from src.tools import data_tool_factory, write_latex
-from src.agent1 import get_text_by_title
+from src.agent1 import summarize_text
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_react_agent, AgentExecutor, tool
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory
 from langchain.prompts import PromptTemplate
 
 def data_processing_agent(cfg):
@@ -19,7 +19,7 @@ def data_processing_agent(cfg):
     tools = data_tool_factory(cfg)
     tools.append(write_latex)
 
-    text = get_text_by_title(cfg)
+    text = summarize_text(cfg)
 #     text = """
 # # 实验数据处理
 # 给出你测量的弹簧的拉力和伸长量的数据表格，写明单位。
@@ -37,33 +37,32 @@ def data_processing_agent(cfg):
     tools.append(read_instruction)
 
     react_prompt = """
-你是一个使用 LaTeX 书写实验报告的有用助手。
 你需要完成一个物理实验的数据处理任务，并用 LaTeX 格式输出实验报告的 4. 实验数据处理 和 5. 分析讨论 两个部分。注意一定要使用 LaTeX 格式输出。
 你可以使用以下工具：
 
 {tools}
 
-你需要一步一步地思考，先用`read_instruction`阅读要求，在处理过程中使用工具，最后用`write_latex`以 LaTeX 格式完成实验报告。
+你需要一步一步地思考，在每完成一个部分后用`read_instruction`阅读下一项任务的要求，在处理过程中使用工具，确保完成了全部内容，最后用`write_latex`把结果写进文件中。
 
 使用以下格式：
 
-Question: 你需要做什么
-Thought: 你应该始终思考该做什么
+Question: 还有哪些部分没完成
+Thought: 列出你还没有做的部分有哪些，比如：B, C 部分的数据处理和写LaTeX报告，用来提醒自己
 Action: 要采取的行动，应该是 [{tool_names}] 中的一个
 Action Input: 行动的输入
 Observation: 行动的结果
 ... (这个 Thought/Action/Action Input/Observation 可以重复 N 次)
 Thought: 我完成了数据处理任务，该写实验报告了
 Action: write_latex
-Action Input: 实验报告内容，LaTeX 格式，只包括你要写的章节
-Observation: 结果
+Action Input: 实验报告内容，LaTeX 格式，只包括你要写的章节，要包括原始数据表格（用 LaTeX 表格格式），和你画的所有图
+Observation: 成功与否
 Thought: 我完成了任务
 Final Answer: Finish!
 
 开始！
 
 Explanation: {input}
-Thought: {agent_scratchpad}
+History: {agent_scratchpad}
 """
     prompt = PromptTemplate(
         input_variables=["input", "tools", "tool_names", "agent_scratchpad"],
@@ -78,7 +77,12 @@ Thought: {agent_scratchpad}
         agent=agent,
         tools=tools,
         verbose=True,
-        memory=ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        memory=ConversationSummaryBufferMemory(
+            memory_key="chat_history",
+            llm=chat_model,
+            max_token_limit=8000,
+            return_messages=True,
+        )
     )
 
     agent_executor.invoke({

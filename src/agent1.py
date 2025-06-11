@@ -110,3 +110,25 @@ def write_experiment_introduction(cfg):
     return response.choices[0].message.content
 
 
+def summarize_text(cfg):
+    """
+    Ask the LLM to summarize the provided text.
+    """
+    chat_model = cfg.chat_model
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
+    text = get_text_by_title(cfg)
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    response = client.chat.completions.create(
+        model=chat_model,
+        messages=[
+            {"role": "system", "content": "你是一位善于概括与提取信息的有用助手。"},
+            {"role": "user", "content": (
+                f"请根据提供的实验指导书内容，提取出在实验数据处理部分要完成的任务"
+                f"以下是实验指导书的内容：{text}。"
+            )},
+        ],
+        temperature=0.0
+    )
+    return response.choices[0].message.content
+

@@ -18,10 +18,12 @@ def get_compilable_latex(draft, chat_model, user_title):
                 f"请将以下 LaTeX 草稿修正为可编译的完整LaTeX源代码：\n{draft}\n"
                 f"""要求：
                 1、只输出 LaTeX 源代码，不要输出其他影响编译的内容，也不要输出 latex```；
-                2、margin=1in;
-                3、实验报告题目为：{user_title}；
-                4、不要改变草稿的内容；
-                5、确保代码可以编译成PDF。"""
+                2、在geometry环境中设定margin=1in;
+                3、确保图片在正确位置，使用`float`环境和`[H]`选项；
+                4、使用 ctexart 文档类；
+                5、实验报告题目为：{user_title}；
+                6、如果草稿中有markdown而非LaTeX的语法，请将其转换；
+                7、确保代码可以编译成PDF。"""
             )}
         ],
         temperature=0

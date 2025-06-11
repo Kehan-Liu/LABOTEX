@@ -1,0 +1,97 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\title{阻尼与受迫振动}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{摘要}
+本实验使用波耳共振仪研究了阻尼振动和受迫振动的特性。通过调整永久磁铁的位置改变阻尼系数，测量了不同阻尼状态下的振动衰减曲线，计算了阻尼系数$\beta$和品质因数$Q$。在受迫振动实验中，通过改变激励源的频率，测量了系统的幅频特性和相频特性曲线，观察了共振现象。实验结果表明：1) 阻尼振动振幅随时间呈指数衰减，衰减速率与阻尼系数相关；2) 受迫振动的稳态振幅和相位差随激励频率变化，在共振频率附近达到最大值；3) 共振时系统的振动能量转换效率最高。
+
+\section{实验原理}
+\subsection{阻尼振动}
+摆轮-弹簧系统的运动方程为：
+\[ J\frac{d^2\theta}{dt^2} = -k\theta - \gamma\frac{d\theta}{dt} \]
+整理得：
+\[ \frac{d^2\theta}{dt^2} + 2\beta\frac{d\theta}{dt} + \omega_0^2\theta = 0 \]
+其中$\beta=\gamma/2J$为阻尼系数，$\omega_0=\sqrt{k/J}$为固有角频率。
+
+欠阻尼($\beta<\omega_0$)解为：
+\[ \theta = \theta_0 e^{-\beta t}\cos(\omega_d t + \varphi_0) \]
+其中$\omega_d=\sqrt{\omega_0^2-\beta^2}$为阻尼振动角频率。
+
+通过测量振幅衰减曲线，利用对数衰减法可求$\beta$：
+\[ \ln\theta_n = \ln\theta_0 - \beta t_0 - n(\beta T_d) \]
+
+品质因数$Q$定义为：
+\[ Q = \frac{\omega_0}{2\beta} \]
+
+\subsection{受迫振动}
+在简谐激励$\omega_0^2A_D\cos(\omega t)$作用下，运动方程为：
+\[ \frac{d^2\theta}{dt^2} + 2\beta\frac{d\theta}{dt} + \omega_0^2\theta = \omega_0^2A_D\cos(\omega t) \]
+
+稳态解为：
+\[ \theta = \theta_m\cos(\omega t - \varphi) \]
+其中振幅和相位差为：
+\[ \theta_m = \frac{\omega_0^2A_D}{\sqrt{(\omega_0^2-\omega^2)^2+(2\beta\omega)^2}} \]
+\[ \varphi = \arctan\frac{2\beta\omega}{\omega_0^2-\omega^2} \]
+
+共振时($\omega=\omega_r$)：
+\[ \omega_r = \sqrt{omega_0^2-2\beta^2} \]
+\[ \theta_{max} = \frac{\omega_0^2A_D}{2\beta\sqrt{\omega_0^2-\beta^2}} \]
+\[ \varphi = \frac{\pi}{2} \]
+
+\section{实验仪器及实验步骤}
+\subsection{实验仪器}
+\begin{itemize}
+    \item 波耳共振仪主机
+    \item 摆轮-弹簧振动系统
+    \item 可调阻尼的永久磁铁装置
+    \item 光电门1（测量振幅和周期）
+    \item 光电门2（测量相位差）
+    \item 步进电机激励源
+    \item 有机玻璃转盘（带角度刻度）
+    \item 闪光灯相位测量装置
+    \item 数据采集和显示系统
+\end{itemize}
+
+\subsection{实验步骤}
+\subsubsection{阻尼振动实验}
+\begin{enumerate}
+    \item 调整仪器：确认电机开关关闭，取下永久磁铁，检查摆轮自由摆动无摩擦
+    \item 测量最小阻尼状态：拨动摆轮至$150^\circ\sim180^\circ$，记录振幅衰减曲线（约200个周期）
+    \item 安装磁铁：设置$s=20$mm，重复振幅测量
+    \item 最大阻尼状态：将磁铁调至最低位置，重复测量
+    \item 数据处理：用对数衰减法计算各状态的$\beta$和$Q$值
+\end{enumerate}
+
+\subsubsection{受迫振动实验}
+\begin{enumerate}
+    \item 开启电机：确认阻尼足够大（$s=20$mm）
+    \item 幅频特性测量：
+    \begin{itemize}
+        \item 调节激励频率从$0.93T_0$到$1.07T_0$
+        \item 每个频率点等待系统稳定后记录$\theta_m$和$\varphi$
+        \item 在共振点附近加密测量点
+    \end{itemize}
+    \item 改变阻尼状态（如$s=10$mm），重复测量
+    \item 从幅频曲线计算$Q$值，与阻尼振动结果比较
+\end{enumerate}
+
+\subsubsection{瞬态过程观测}
+\begin{enumerate}
+    \item 设置激励频率为$\omega_0$，阻尼$s=20$mm
+    \item 从静止状态启动电机，记录振幅增长过程
+    \item 绘制振幅-时间曲线，分析瞬态特性
+\end{enumerate}
+
+\end{document}
