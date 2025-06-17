@@ -1,6 +1,7 @@
 title: 阻尼与受迫振动
-dir_name: book1
+dir_name: test
 data_dir: /home/tiger/Yao_Class/LLM/labotex/data
 
 chat_model: deepseek-v3
+vl_model: qwen2.5-vl-72b-instruct
 prompt: 这是阻尼与受迫振动实验。A_without中是无阻尼时振幅与经历时长的数据，A_weak是弱阻尼时振幅与经历时长的数据，A_strong是强阻尼时振幅与经历时长的数据，B_weak是弱阻尼时角频率与相位差的数据，B_strong是强阻尼时角频率与相位差的数据，C_instant是瞬态振幅与经历时常的数据。请完成实验A、B、C三部分的数据处理，报告中包含原始数据表格和你的所有图片。

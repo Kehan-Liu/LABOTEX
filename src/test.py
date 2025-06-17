@@ -10,13 +10,15 @@ cfg = OmegaConf.load('config.yaml')
 # os.environ["OPENAI_API_KEY"] = getpass.getpass("Please enter your OpenAI API key: ")
 # os.environ["OPENAI_BASE_URL"] = getpass.getpass("Please enter your OpenAI base URL: ")
 
-os.makedirs('tmp', exist_ok=True)
+# os.makedirs('tmp', exist_ok=True)
 
-with open('tmp/output.txt', 'w') as f:
-    f.truncate(0)
+# with open('tmp/output.txt', 'w') as f:
+#     f.truncate(0)
 
-write_experiment_introduction(cfg)
+# write_experiment_introduction(cfg)
 
-data_processing_agent(cfg)
+# data_processing_agent(cfg)
 
-write_final_report(cfg)
+# write_final_report(cfg)
+
+pdf_to_json(cfg)
