@@ -45,7 +45,7 @@ def page_one_action(dir_name, vl_model, api_key, base_url, file_input):
         return "Failed to Load the Book."
 
 
-def page_two_action(title, dir_name, chat_model, prompt, api_key, base_url,file_input):
+def page_two_action(dir_name, title, chat_model, api_key, base_url,file_input, prompt):
     cfg = CFG(
         title=title,
         dir_name=dir_name,
@@ -101,8 +101,8 @@ def page_two_action(title, dir_name, chat_model, prompt, api_key, base_url,file_
 
     return "Report Successfully Written!", pdf_path
 
-def run_page_two_action(title, dir_name, chat_model, prompt, api_key, base_url, file_input):
-    msg, pdf_path = page_two_action(title, dir_name, chat_model, prompt, api_key, base_url, file_input)
+def run_page_two_action(dir_name, title, chat_model, api_key, base_url, file_input, prompt):
+    msg, pdf_path = page_two_action(dir_name, title, chat_model, api_key, base_url, file_input, prompt)
     return msg, pdf_path
 
 def get_pdf_path(pdf_path):
@@ -132,11 +132,11 @@ with demo.route("Add New Instruction Books", "/page-one"):
 with demo.route("Write Reports", "/page-two"):
     inp1 = gr.Textbox(label="Reference Book Name")
     inp2 = gr.Textbox(label="Title of the Report")
-    inp3 = gr.Textbox(label="Chat Model Name")
-    inp4 = gr.Textbox(label="Description of Your CSV Files")
-    inp5 = gr.Textbox(label="API Key", type="password")
-    inp6 = gr.Textbox(label="Base URL")
+    inp3 = gr.Textbox(label="Chat Model Name")    
+    inp4 = gr.Textbox(label="API Key", type="password")
+    inp5 = gr.Textbox(label="Base URL")
     file_input = gr.File(label="Drag Your CSV Files Here", file_types=[".csv"], file_count="multiple")
+    inp6 = gr.Textbox(label="Description of Your CSV Files")
     generate_btn = gr.Button("Generate PDF")
     out1 = gr.Textbox(label="Output", visible=True)
     pdf_path_box = gr.Textbox(label="PDF Path", visible=False)
@@ -144,7 +144,7 @@ with demo.route("Write Reports", "/page-two"):
 
     generate_btn.click(
         fn=run_page_two_action,
-        inputs=[inp2, inp1, inp3, inp4, inp5, inp6, file_input],
+        inputs=[inp1, inp2, inp3, inp4, inp5, file_input, inp6],
         outputs=[out1, pdf_path_box]
     )    
 
