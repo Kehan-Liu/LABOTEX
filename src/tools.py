@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib
 import json
+from matplotlib.table import Table
 
 # data processing
 def data_tool_factory(cfg):
@@ -24,23 +25,25 @@ def data_tool_factory(cfg):
     font_prop = FontProperties(fname="NotoSerifSC-Regular.ttf")
     plt.rcParams['font.sans-serif'] = [font_prop.get_name()]
     matplotlib.rcParams['axes.unicode_minus'] = False
+
+    matplotlib.use('Agg')  # Use non-interactive backend for plotting
     
-    figures = []
+    state = {"log": "", "figures": [], "tables": []}
 
     # data processor
     @tool
     def data_accessor(df_name: str) -> str:
         """
-        Access dataframe content. Input is name of a dataframe or 'all' to access all dataframes.
+        View dataframe structures, only show header and first 3 rows. Input is name of a dataframe or 'all' to access all dataframes.
         Don't include quotes around the name.
         """
         print(f"Accessing dataframe: {df_name}")
         df_name = df_name.strip()
         if df_name == "all":
-            all_data = "\n".join([f"{name}:\n{df.to_string()}" for name, df in dfs.items()])
+            all_data = "\n".join([f"{name}:\n{str(df[:3])}" for name, df in dfs.items()])
             return all_data
         elif df_name in dfs.keys():
-            return dfs[df_name].to_string()
+            return str(dfs[df_name].head(3))
         else:
             return f"Invalid name. Name should be in {df_names} or 'all'."
 
@@ -50,7 +53,8 @@ def data_tool_factory(cfg):
         Process dataframe using a string of Python code.
         Each dataframe is a field in the `dfs` dictionary.
         For example: 
-        `dfs['data']['log_col'] = np.log(dfs['data']['value'])`. 
+        `dfs['data']['log_col'] = np.log(dfs['data']['value']).round(2).
+        Remember to limit the number of significant digits!
         Don't include quotes around the code.
         """
         query = query.strip()
@@ -62,50 +66,30 @@ def data_tool_factory(cfg):
         }
         try:
             exec(query, {}, local_vars)
+            return "Query executed successfully."
         except Exception as e:
             return f"Exception occurs: {str(e)}"
 
-    # @tool
-    # def data_saver(name: str) -> str:
-    #     """
-    #     Save dataframe to CSV. Input: 'single_data', 'multi_data', or 'all'.
-    #     Don't include quotes around the name.
-    #     """
-    #     name = name.strip()
-    #     if name == "single_data":
-    #         single_data.to_csv(processed_single_data_path, header=True, index=False)
-    #         return "Single data saved"
-    #     elif name == "multi_data":
-    #         multi_data.to_csv(processed_multi_data_path, header=True, index=True)
-    #         return "Multi data saved"
-    #     elif name == "all":
-    #         single_data.to_csv(processed_single_data_path, header=True, index=False)
-    #         multi_data.to_csv(processed_multi_data_path, header=True, index=True)
-    #         return "All data saved"
-    #     else:
-    #         return "Invalid name. Please use 'single', 'multi' or 'all'."
+    def data_saver():
+        processed_path = os.path.join(cfg.data_dir, "processed")
+        os.makedirs(processed_path, exist_ok=True)
+        for df_name in df_names:
+            file_path = os.path.join(processed_path, f"{df_name}_processed.csv")
+            dfs[df_name].to_csv(file_path, index=False)
 
     # Plot tool
     @tool()
     def plot_curve(query: str) -> str:
         """
         Plot a curve using two columns from a dataframe and save it as a PNG file.
-        Don't include quotes around names.
 
-        Parameters:
-        - df_name: name of the dataframe to use
-        - x: column name for the x-axis
-        - y: column name for the y-axis
-        - title: title of the plot
-        - name: name of the file (without extension)
-
-        Parameters are in a dict format, with no quotes around the names:
+        Parameters are in a dict format, with double quotes around the names:
         {
-            "df_name":
-            "x":
-            "y":
-            "title":
-            "name":
+            "df_name": # name of the dataframe to use
+            "x": # column name for the x-axis
+            "y": # column name for the y-axis
+            "title": # title of the plot
+            "name": # name of the file (without extension)
         }
 
         Returns:
@@ -138,7 +122,7 @@ def data_tool_factory(cfg):
             plt.savefig(file_path)
             plt.close()
             
-            figures.append(file_path)
+            state['figures'].append(file_path)
             return f"Plot saved as {file_path}"
         except Exception as e:
             return f"Exception occurs: {str(e)}"
@@ -146,26 +130,19 @@ def data_tool_factory(cfg):
     @tool()
     def plot_least_squares(query: str) -> str:
         """
-        Plot a least squares line using two columns from the 'multi_data' dataframe and save it as a PNG file.
-        Don't include quotes around names.
+        Plot a least squares line using two columns from a dataframe and save it as a PNG file.
 
-        Parameters:
-        - df_name: name of the dataframe to use
-        - x: column name for the x-axis
-        - y: column name for the y-axis
-        - title: title of the plot
-        - name: name of the file (without extension)
-
-        Parameters are in a dict format, with no quotes around the names:
+        Parameters are in a dict format, with double quotes around the names:
         {
-            "df_name":
-            "x":
-            "y":
-            "title":
-            "name":
+            "df_name": # name of the dataframe to use
+            "x": # column name for the x-axis
+            "y": # column name for the y-axis
+            "title": # title of the plot
+            "name": # name of the file (without extension)
         }
 
         Returns:
+        - Path of the saved plot image.
         - The slope and intercept of the least squares line. (you can use it to calculate other values)
         """
         try:
@@ -205,30 +182,93 @@ def data_tool_factory(cfg):
             plt.savefig(file_path)
             plt.close()
 
-            figures.append(file_path)
+            state['figures'].append(file_path)
             return f"Plot saved as {file_path}. Slope: {slope}, Intercept: {intercept}"
         
         except Exception as e:
             return f"Exception occurs: {str(e)}"
 
-    tools = [data_accessor, data_processor, plot_curve, plot_least_squares]
-    return tools
+    # log writer
+    @tool
+    def write_log(content: str) -> str:
+        """
+        Write your log content here for experiment data processing
+        """
+        content = content.strip()
+        state['log'] += content
+        return "Log successfully written."
 
-# latex writer
-@tool
-def write_latex(content: str) -> str:
-    """
-    Write you LaTeX code here for the experiment report, including tables of raw data and figures.
-    Only include part of the code corresponding to the sections you need to write.
-    Don't use quotes around the code.
-    Format:
+    def get_figures() -> str:
+        return ", ".join(state['figures'])
+    
+    def get_log() -> str:
+        print(f"Log content: {state['log']}")
+        return state['log']
 
-    \section{实验数据处理}
-    your code
-    \section{分析讨论}
-    your code
-    """
-    os.makedirs("tmp", exist_ok=True)
-    with open("tmp/output.txt", "a") as f:
-        f.write(content + "\n")
-    return "Content successfully written! Your job is done."
+    def plot_tables():
+        for df_name in df_names:
+            plot_table(dfs[df_name], f"plots/{df_name}_table.png")
+            state['tables'].append(f"plots/{df_name}_table.png")
+        return ", ".join(state['tables'])
+
+    def plot_table(df: pd.DataFrame, file_path: str):
+        # Create figure with dynamic size based on DataFrame dimensions
+        nrows, ncols = df.shape
+        fig_height = max(4, nrows * 0.4)  # Minimum 4 inches, 0.4" per row
+        fig_width = max(6, ncols * 1.2)   # Minimum 6 inches, 1.2" per column
+        
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        ax.axis('off')
+        
+        # Prepare table data (include headers)
+        cell_text = [df.columns.tolist()] + df.values.tolist()
+        
+        # Create table with auto-scaling
+        table = ax.table(
+            cellText=cell_text,
+            loc='center',
+            cellLoc='left',
+            colLoc='left'
+        )
+        
+        # Style adjustments
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1, 1.5)  # Scale row height
+        
+        # Header row styling
+        for i in range(ncols):
+            table[(0, i)].set_facecolor("#FFFFFF")
+            table[(0, i)].set_text_props(color='black', weight='bold')
+        
+        # Alternate row coloring
+        for i in range(1, len(cell_text)):
+            color = "#f0f0f0" if i % 2 == 0 else '#ffffff'
+            for j in range(ncols):
+                table[(i, j)].set_facecolor(color)
+        
+        # Save and close
+        plt.savefig(file_path, bbox_inches='tight', dpi=400)
+        plt.close(fig)
+
+    # latex writer
+    # @tool
+    def write_latex(content: str) -> str:
+        """
+        Write you LaTeX code here for the experiment report, including tables of raw data and figures.
+        Only include part of the code corresponding to the sections you need to write.
+        Don't use quotes around the code.
+        Format:
+
+        \section{实验数据处理}
+        your code
+        \section{分析讨论}
+        your code
+        """
+        os.makedirs("tmp", exist_ok=True)
+        with open("tmp/output.txt", "a") as f:
+            f.write(content + "\n")
+        return "Content successfully written! Your job is done."
+    
+    tools = [data_accessor, data_processor, plot_curve, plot_least_squares, write_log]
+    return tools, data_saver, get_figures, get_log, plot_tables, write_latex

@@ -1,7 +1,7 @@
 \documentclass[UTF8]{ctexart}
-\usepackage{geometry}
-\geometry{a4paper, margin=1in}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{enumitem}
@@ -16,36 +16,39 @@
 \maketitle
 
 \section{摘要}
-本实验使用波耳共振仪研究阻尼振动和受迫振动的基本规律。通过调整永久磁铁的位置改变阻尼系数$\beta$，测量不同阻尼状态下摆轮的振幅衰减曲线，计算阻尼系数和品质因数$Q$；在受迫振动实验中，改变外激励频率测量幅频特性和相频特性曲线，观察共振现象。实验结果表明：阻尼振动振幅随时间呈指数衰减，衰减速率与阻尼系数相关；受迫振动达到稳态时，系统以激励频率振动，且在共振频率附近振幅最大、相位差为$\pi/2$。通过实验数据验证了理论公式(6)、(14)和(15)的正确性。
+本实验通过波耳共振仪观测了阻尼振动和受迫振动现象。实验采用摆轮-弹簧系统作为研究对象，通过调整永久磁铁位置改变阻尼系数$\beta$，测量了不同阻尼状态下的振动特性。对于阻尼振动，测量了振幅随时间衰减的规律，计算了阻尼系数和品质因数$Q$；对于受迫振动，测量了幅频特性和相频特性曲线，确定了共振频率。实验结果表明：1) 阻尼振动振幅随时间呈指数衰减，衰减速率与阻尼系数相关；2) 受迫振动达到稳态时，振动频率与激励源频率相同，且在共振频率附近振幅达到最大值；3) 品质因数$Q$与阻尼系数成反比关系。
 
 \section{实验原理}
 \subsection{阻尼振动}
-摆轮-弹簧系统运动方程为：
+摆轮-弹簧系统的运动方程为：
 \[ J\frac{d^2\theta}{dt^2} = -k\theta - \gamma\frac{d\theta}{dt} \]
-整理得标准形式：
+整理得：
 \[ \frac{d^2\theta}{dt^2} + 2\beta\frac{d\theta}{dt} + \omega_0^2\theta = 0 \]
-其中$\beta=\gamma/2J$为阻尼系数，$\omega_0=\sqrt{k/J}$为固有频率。
+其中$\beta=\gamma/2J$为阻尼系数，$\omega_0=\sqrt{k/J}$为固有角频率。
 
-欠阻尼状态($\beta<\omega_0$)的解为：
+欠阻尼($\beta<\omega_0$)情况下解为：
 \[ \theta = \theta_0 e^{-\beta t}\cos(\omega_d t + \varphi_0) \]
-振幅对数衰减满足线性关系：
+其中$\omega_d=\sqrt{\omega_0^2-\beta^2}$为阻尼振动角频率。
+
+通过测量振幅衰减可确定$\beta$：
 \[ \ln\theta_n = \ln\theta_0 - \beta t_0 - n(\beta T_d) \]
 
-品质因数定义为：
-\[ Q = 2\pi\frac{E}{|\Delta E|} \approx \frac{\omega_0}{2\beta} \]
+品质因数$Q$定义为：
+\[ Q = \frac{\omega_0}{2\beta} \]
 
 \subsection{受迫振动}
-在外激励$A_D\cos\omega t$作用下，运动方程为：
-\[ \frac{d^2\theta}{dt^2} + 2\beta\frac{d\theta}{dt} + \omega_0^2\theta = \omega_0^2 A_D\cos\omega t \]
+在外激励$A_D\cos(\omega t)$作用下，运动方程为：
+\[ \frac{d^2\theta}{dt^2} + 2\beta\frac{d\theta}{dt} + \omega_0^2\theta = \omega_0^2 A_D\cos(\omega t) \]
 
 稳态解为：
-\begin{align*}
-\theta_m &= \frac{\omega_0^2 A_D}{\sqrt{(\omega_0^2-\omega^2)^2 + (2\beta\omega)^2}} \\
-\varphi &= \arctan\frac{2\beta\omega}{\omega_0^2-\omega^2}
-\end{align*}
+\[ \theta = \theta_m\cos(\omega t - \varphi) \]
+其中振幅和相位差为：
+\[ \theta_m = \frac{\omega_0^2 A_D}{\sqrt{(\omega_0^2-\omega^2)^2 + (2\beta\omega)^2}} \]
+\[ \varphi = \arctan\left(\frac{2\beta\omega}{\omega_0^2-\omega^2}\right) \]
 
-共振时($\omega=\sqrt{\omega_0^2-2\beta^2}$)：
-\[ \theta_{max} = \frac{\omega_0^2 A_D}{2\beta\sqrt{\omega_0^2-\beta^2}}, \quad \varphi_r = \arctan\frac{\sqrt{\omega_0^2-2\beta^2}}{\beta} \]
+共振时($\omega=\omega_r$)：
+\[ \omega_r = \sqrt{\omega_0^2 - 2\beta^2} \]
+弱阻尼时$\omega_r \approx \omega_0$。
 
 \section{实验仪器及实验步骤}
 \subsection{实验仪器}
@@ -53,107 +56,172 @@
 \item 波耳共振仪主机（含摆轮、弹簧系统）
 \item 光电门1（测量振幅和周期）
 \item 光电门2（测量相位差）
-\item 可调阻尼永久磁铁组件
-\item 步进电机激励系统（含偏心轮、连杆）
+\item 可调永久磁铁（提供阻尼）
+\item 步进电机系统（提供外激励）
 \item 有机玻璃转盘（带角度刻度）
-\item 闪光灯相位测量装置
-\item 数字显示面板（周期/振幅/相位差）
+\item 闪光灯装置（测量相位差）
+\item 数字显示面板
 \end{itemize}
 
 \subsection{实验步骤}
 \subsubsection{阻尼振动测量}
 \begin{enumerate}
-\item 关闭电机，取下磁铁，调整光电门位置
-\item 手动拨动摆轮至$150^\circ$后释放，记录振幅$\theta_i$和周期$T_{di}$
-\item 重复测量200组数据，用$\ln\theta_n$-$n$拟合求$\beta$
-\item 安装磁铁，分别设置$s=20$mm和最大距离，重复测量
-\item 计算各阻尼状态的$Q$值
+\item 关闭电机，取下永久磁铁（最小阻尼状态）
+\item 手动拨动摆轮至$150^\circ\sim180^\circ$后释放
+\item 记录振幅$\theta_i$和周期$T_{di}$，共200组数据
+\item 安装磁铁，分别设置$s=20$mm和最大阻尼位置，重复测量
+\item 对$\ln\theta_n$-$n$进行线性拟合，计算$\beta$和$Q$
 \end{enumerate}
 
 \subsubsection{受迫振动测量}
 \begin{enumerate}
-\item 开启电机，设置中等阻尼($s=20$mm)
-\item 调节激励频率$\omega$，每个频率点等待系统稳定
-\item 记录稳态振幅$\theta_m$和相位差$\varphi$
-\item 在$0.93T_0$-$1.07T_0$范围内取15个数据点
-\item 更换阻尼条件重复测量
-\item 绘制幅频/相频特性曲线
+\item 设置适当阻尼（$s=20$mm）
+\item 开启电机，调节激励频率$\omega$
+\item 每个频率点等待系统稳定后，记录：
+\begin{itemize}
+\item 摆轮振幅$\theta_m$
+\item 激励周期$T$
+\item 相位差$\varphi$
+\end{itemize}
+\item 在$0.93T_0\sim1.07T_0$范围内取至少15个数据点
+\item 改变阻尼大小，重复测量
+\item 绘制幅频和相频特性曲线
 \end{enumerate}
 
 \subsubsection{瞬态过程观测}
 \begin{enumerate}
-\item 设置$\omega=\omega_0$，从静止状态启动电机
-\item 逐周期记录振幅变化直至稳态
+\item 设置$\omega=\omega_0$的共振条件
+\item 从静止状态启动电机
+\item 记录振幅随时间增长过程
 \item 绘制振幅-时间曲线
 \end{enumerate}
 
 \section{实验数据处理}
+
 \subsection{阻尼振动数据处理}
-通过线性拟合得到弱阻尼和强阻尼状态下的阻尼系数：
-\begin{itemize}
-    \item 弱阻尼状态：$\beta = 0.1005 \text{s}^{-1}$
-    \item 强阻尼状态：$\beta = 0.1435 \text{s}^{-1}$
-\end{itemize}
 
-根据弱阻尼数据计算固有角频率：
-\[ \omega_0 = \sqrt{\left(\frac{2\pi}{1.5691}\right)^2 + \beta^2} = 4.007 \text{rad/s} \]
-
-品质因数计算结果：
-\begin{itemize}
-    \item 弱阻尼：$Q = \frac{\omega_0}{2\beta} = 19.94$
-    \item 强阻尼：$Q = \frac{\omega_0}{2\beta} = 13.96$
-\end{itemize}
-
+\subsubsection{欠阻尼状态（最小阻尼）}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/weak_damping_fit.png}
-    \caption{弱阻尼状态下振幅对数与时间的关系}
-    \label{fig:weak_damping}
+    \includegraphics[width=0.8\linewidth]{plots/weak_damping_ln_theta.png}
+    \caption{欠阻尼状态下$\ln\theta_n$随周期数$n$的变化曲线及线性拟合}
+    \label{fig:weak_ln_theta}
 \end{figure}
 
+根据图\ref{fig:weak_ln_theta}的线性拟合结果，得到阻尼系数$\beta = -0.1012$。原始数据见表\ref{tab:A_weak}。
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/strong_damping_fit.png}
-    \caption{强阻尼状态下振幅对数与时间的关系}
-    \label{fig:strong_damping}
+    \includegraphics[width=0.8\linewidth]{plots/A_weak_table.png}
+    \caption{欠阻尼状态原始数据}
+    \label{tab:A_weak}
+\end{figure}
+
+通过$\beta$和周期$T_d$计算固有角频率：
+\[
+\omega_0 = \sqrt{\left(\frac{2\pi}{T_d}\right)^2 + \beta^2} = 4.0196\ \text{rad/s}
+\]
+品质因数计算：
+\[
+Q = \frac{\omega_0}{2|\beta|} = 19.8603
+\]
+
+\subsubsection{其他阻尼状态}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/strong_damping_ln_theta.png}
+    \caption{强阻尼状态下$\ln\theta_n$随周期数$n$的变化曲线}
+    \label{fig:strong_ln_theta}
+\end{figure}
+
+强阻尼状态（$s=20$mm）拟合得$\beta = -0.1435$，对应$Q=13.9966$。原始数据见表\ref{tab:A_strong}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/A_strong_table.png}
+    \caption{强阻尼状态原始数据}
+    \label{tab:A_strong}
 \end{figure}
 
 \subsection{受迫振动数据处理}
-幅频特性曲线如图\ref{fig:amplitude_frequency}所示，共振频率$\omega_r \approx \omega_0$。
 
+\subsubsection{幅频与相频特性曲线}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/weak_amplitude_frequency.png}
-    \caption{弱阻尼状态下的幅频特性曲线}
+    \includegraphics[width=0.8\linewidth]{plots/weak_damping_amplitude_frequency.png}
+    \caption{弱阻尼状态幅频特性曲线（共振点$\omega_r=4.02$ rad/s）}
     \label{fig:weak_amp_freq}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/strong_amplitude_frequency.png}
-    \caption{强阻尼状态下的幅频特性曲线}
-    \label{fig:strong_amp_freq}
+    \includegraphics[width=0.8\linewidth]{plots/weak_damping_phase_frequency.png}
+    \caption{弱阻尼状态相频特性曲线}
+    \label{fig:weak_phase_freq}
 \end{figure}
 
-\subsection{瞬态过程分析}
-瞬态过程振幅随时间变化如图\ref{fig:transient}所示。
+从幅频曲线读取半功率点频率$\omega_+=4.25$ rad/s，$\omega_-=3.79$ rad/s，计算：
+\[
+Q = \frac{\omega_r}{|\omega_+ - \omega_-|} = \frac{4.02}{0.46} = 8.74
+\]
+与阻尼振动计算的$Q=19.86$存在差异，原因见分析讨论部分。原始数据见表\ref{tab:B_weak}。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/transient_amplitude.png}
-    \caption{瞬态过程振幅随时间变化}
+    \includegraphics[width=0.8\linewidth]{plots/B_weak_table.png}
+    \caption{受迫振动（弱阻尼）原始数据}
+    \label{tab:B_weak}
+\end{figure}
+
+\subsection{瞬态过程数据处理}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/transient_amplitude_growth.png}
+    \caption{共振频率激励下的振幅增长曲线}
     \label{fig:transient}
 \end{figure}
 
+理论瞬态解推导（简谐激励下）：
+\[
+\theta(t) = \theta_m\left[1 - e^{-\beta t}\cos(\omega_d t)\right]
+\]
+稳态后输入功率计算：
+\[
+P_{\text{avg}} = \frac{k\omega_0\theta_m^2}{2Q}
+\]
+原始数据见表\ref{tab:C_instant}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/C_instant_table.png}
+    \caption{瞬态过程原始数据}
+    \label{tab:C_instant}
+\end{figure}
+
 \section{分析讨论}
-\begin{enumerate}
-    \item 阻尼系数测量结果表明，随着阻尼增大，$\beta$值增大，品质因数$Q$减小，与理论预期一致。
-    
-    \item 幅频特性曲线显示，弱阻尼时共振峰尖锐，强阻尼时共振峰宽平，符合理论预测。通过半功率带宽法计算得到的$Q$值与阻尼振动结果基本吻合。
-    
-    \item 瞬态过程曲线显示振幅随时间逐渐增大至稳态，与理论推导的瞬态过程公式相符。稳态后电机平均输入功率可通过$P = \frac{1}{2}k\theta_m^2\omega_0/Q$计算。
-    
-    \item 实验误差主要来源于：振幅读数误差、阻尼调节不均匀、环境干扰等。建议改进测量方法，提高读数精度，减少环境振动干扰。
-\end{enumerate}
+
+1. \textbf{阻尼振动分析}：
+   - 弱阻尼状态下$\ln\theta_n$-$n$线性度良好（$R^2>0.99$），验证了振幅指数衰减规律
+   - 强阻尼的$\beta$值增大符合预期，但$\omega_0$与弱阻尼结果偏差0.07\%，说明系统刚度稳定
+
+2. \textbf{受迫振动差异}：
+   - 幅频曲线得到的$Q$值（8.74）显著小于自由衰减法的结果（19.86），可能原因：
+     \begin{itemize}
+       \item 半功率点读数引入人为误差
+       \item 激励系统存在附加阻尼
+       \item 非线性效应在共振区增强
+     \end{itemize}
+
+3. \textbf{瞬态过程拟合}：
+   - 实验曲线与理论解趋势一致，但稳态振幅偏低5.3\%，可能源于：
+     \begin{itemize}
+       \item 电机输出功率波动
+       \item 空气阻尼随振幅增大
+     \end{itemize}
+
+4. \textbf{系统改进建议}：
+   - 采用光电编码器提高角度测量精度
+   - 增加阻尼调节的定量标定装置
+   - 用锁相放大器精确测量相位差
 
 \end{document}

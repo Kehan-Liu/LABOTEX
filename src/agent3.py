@@ -18,8 +18,8 @@ def get_compilable_latex(draft, chat_model, user_title):
                 f"请将以下 LaTeX 草稿修正为可编译的完整LaTeX源代码：\n{draft}\n"
                 f"""要求：
                 1、只输出 LaTeX 源代码，不要输出其他影响编译的内容，也不要输出 latex```；
-                2、在geometry环境中设定margin=1in;
-                3、确保图片在正确位置，使用`float`环境和`[H]`选项；
+                2、在geometry环境中设定margin=1in，并调用`amsmath`和`amssymb`以及其他必要的宏包；
+                3、确保图片在正确位置，使用`float`环境和`[H]`选项，所有图片单独一行，不要并列放置；
                 4、使用 ctexart 文档类；
                 5、实验报告题目为：{user_title}；
                 6、如果草稿中有markdown而非LaTeX的语法，请将其转换；
@@ -43,6 +43,7 @@ def write_final_report(cfg):
     with open(f'{user_title}.tex', 'w', encoding='utf-8') as f:
         f.write(compilable_latex)
     compile_cmd = f"xelatex -output-directory=. {user_title}.tex"
+    subprocess.run(compile_cmd, shell=True, check=True)
     subprocess.run(compile_cmd, shell=True, check=True)
     os.makedirs('final_pdf', exist_ok=True)
     move_cmd = f"mv {user_title}.pdf final_pdf/"

@@ -1,10 +1,11 @@
 import os
-from src.tools import data_tool_factory, write_latex
+from src.tools import data_tool_factory
 from src.agent1 import summarize_text
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_react_agent, AgentExecutor, tool
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
+from langchain.schema import HumanMessage
 
 def data_processing_agent(cfg):
     CHAT_MODEL = cfg.chat_model
@@ -16,8 +17,8 @@ def data_processing_agent(cfg):
         model_name=CHAT_MODEL,
         base_url=base_url,
     )
-    tools = data_tool_factory(cfg)
-    tools.append(write_latex)
+    tools, data_saver, get_figures, get_log, plot_tables, write_latex = data_tool_factory(cfg)
+    
 
     text = summarize_text(cfg)
 #     text = """
@@ -28,12 +29,12 @@ def data_processing_agent(cfg):
 # 实验的误差分析
 # """
     react_prompt = """
-你需要完成一个物理实验的数据处理任务，并用 LaTeX 格式输出实验报告的 4. 实验数据处理 和 5. 分析讨论 两个部分。注意一定要使用 LaTeX 格式输出。
+你需要完成一个物理实验的数据处理任务，全部完成后用`write_log`工具按实验顺序分部分记录实验处理中的重要信息。
 你可以使用以下工具：
 
 {tools}
 
-你需要一步一步地思考，在处理过程中使用工具，确保完成了全部内容，最后用`write_latex`把结果写进文件中。
+你需要一步一步地思考，在处理过程中使用工具，确保完成了全部内容，最后用`write_log`写记录。
 
 严格使用以下格式，不要用加粗或Markdown语法
 
@@ -43,9 +44,9 @@ Action: 要采取的行动，应该是 [{tool_names}] 中的一个
 Action Input: 行动的输入
 Observation: 行动的结果
 ... (这个 Thought/Action/Action Input/Observation 可以重复 N 次)
-Thought: 我完成了数据处理任务，现在写实验报告
-Action: write_latex
-Action Input: 实验报告内容，LaTeX 格式，只包括实验数据处理和分析讨论两部分
+Thought: 我完成了所有数据处理任务，现在写实验处理记录
+Action: write_log
+Action Input: 按实验次序全面地记录实验处理中的重要信息（计算结果、图表名称等）
 Observation: 成功与否
 Thought: 我完成了任务
 Final Answer: Finish!
@@ -72,8 +73,45 @@ Thought: {agent_scratchpad}
             memory_key="chat_history",
             return_messages=True,
         ),
+        max_iterations=50,
+        handle_parsing_errors=True,
     )
 
     agent_executor.invoke({
-        "input": text + cfg.prompt
+        "input": text + "\n全部数据处理任务完成后，使用`write_log`工具记录信息\n" + cfg.prompt
     })
+
+    data_saver()
+
+    figures = get_figures()
+    log = get_log()
+    tables = plot_tables()
+
+    writer_prompt = f"""
+你是一个物理实验报告写作助手，需要根据实验要求和实验数据，按照 LaTeX 格式，写作实验报告的 实验数据处理 和 分析讨论 两部分。要求：包含文字说明、图像和原始表格（已转换为图像，直接插入），按照实验任务的顺序有条理的书写。
+
+数据处理部分的任务为：
+{text}
+
+实验数据处理过程中的重要信息如下：
+{log}
+
+原始数据表格图片路径如下：
+{tables}
+
+对表格名称的解释：{cfg.prompt}
+
+所有实验图像的路径为：
+{figures}
+
+你的输出应该是 LaTeX 代码，格式如下：
+\\section{{实验数据处理}}
+各部分数据处理的文字说明、图像和原始数据表格，按数据处理任务顺序写作
+
+\\section{{分析讨论}}
+分析讨论的文字说明
+"""
+    messages = [HumanMessage(content=writer_prompt)]
+    response = chat_model.invoke(messages)
+    latex_code = response.content.strip()
+    write_latex(latex_code)
