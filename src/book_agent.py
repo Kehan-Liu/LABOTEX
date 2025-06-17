@@ -51,8 +51,8 @@ def pdf_to_json(cfg):
     # first load the config from the cfg object.
     dir_name = cfg.dir_name
     vl_model_name = cfg.vl_model
-    api_key = cfg.openai_api_key
-    base_url = cfg.openai_base_url
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
     books_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../books/{dir_name}"))
     pdf_filename = next((f for f in os.listdir(books_dir) if f.lower().endswith(".pdf")), None)
     if not pdf_filename:
