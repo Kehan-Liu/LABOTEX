@@ -22,8 +22,9 @@ def get_compilable_latex(draft, chat_model, user_title):
                 3、确保图片在正确位置，使用`float`环境和`[H]`选项，所有图片单独一行，不要并列放置；
                 4、使用 ctexart 文档类；
                 5、实验报告题目为：{user_title}；
-                6、如果草稿中有markdown而非LaTeX的语法，请将其转换；
-                7、确保代码可以编译成PDF。"""
+                6、如果草稿中有markdown而非LaTeX的语法，请将其转换为LaTeX；
+                7、删除草稿中`（见 plot/figure_name.png）`这样注释性的语句；
+                8、确保代码可以编译成PDF。"""
             )}
         ],
         temperature=0
