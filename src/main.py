@@ -5,6 +5,7 @@ from src.agent2 import data_processing_agent
 from src.agent3 import write_final_report
 import os
 import shutil
+import subprocess
 
 class CFG:
     def __init__(self, title, dir_name, chat_model, vl_model, prompt):
@@ -106,7 +107,7 @@ with gr.Blocks() as demo:
     dummy = gr.Textbox(visible=False)
 
 with demo.route("Add New Instruction Books", "/page-one"):
-    inp1 = gr.Textbox(label="Directory Name")
+    inp1 = gr.Textbox(label="Book Name", placeholder="single English word without space")
     inp2 = gr.Textbox(label="Vision Language Model Name")
     inp3 = gr.Textbox(label="API Key", type="password")
     inp4 = gr.Textbox(label="Base URL")
