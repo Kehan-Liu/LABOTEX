@@ -5,7 +5,6 @@ from src.agent2 import data_processing_agent
 from src.agent3 import write_final_report
 import os
 import shutil
-import subprocess
 
 class CFG:
     def __init__(self, title, dir_name, chat_model, vl_model, prompt):
@@ -89,6 +88,16 @@ def page_two_action(title, dir_name, chat_model, prompt, api_key, base_url,file_
     write_final_report(cfg)
 
     pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "final_pdf", f"{title}.pdf"))
+
+    plots_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "plots"))
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+    tmp_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tmp"))
+    if os.path.isdir(plots_dir):
+        shutil.rmtree(plots_dir)
+    if os.path.isdir(data_dir):
+        shutil.rmtree(data_dir)
+    if os.path.isdir(tmp_dir):
+        shutil.rmtree(tmp_dir)
 
     return "Report Successfully Written!", pdf_path
 
