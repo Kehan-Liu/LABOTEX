@@ -130,7 +130,7 @@ with demo.route("Add New Instruction Books", "/page-one"):
     )
    
 with demo.route("Write Reports", "/page-two"):
-    inp1 = gr.Textbox(label="Directory Name")
+    inp1 = gr.Textbox(label="Reference Book Name")
     inp2 = gr.Textbox(label="Title of the Report")
     inp3 = gr.Textbox(label="Chat Model Name")
     inp4 = gr.Textbox(label="Description of Your CSV Files")
