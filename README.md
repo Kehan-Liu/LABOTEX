@@ -12,17 +12,15 @@ By utilizing these 4 agents, ***Labotex*** provides a Web UI through `main.py` f
 ## Using Procedure
 In order to use ***Labotex***, follow these steps:
 ### I. Environment Setup
-Make sure you have `python 3.x` and `miniconda` installed. You can activate the conda virtual environment by running:
-   ```bash
-   conda activate labotex
-   ```
-   Then, install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   Also, make sure you have `poppler` installed for PDF processing. 
+After cloning the repository, create a virtual environment and install the required packages:
+```bash
+conda create -n labotex python=3.10
+conda activate labotex
+pip install -r requirements.txt
+```
+You might need to install `poppler` in addition for PDF processing.
 
-   **Ubuntu/Debian users** can install it with:
+**Ubuntu/Debian users** can install it with:
 ```bash
 sudo apt-get install poppler-utils
 ```
@@ -33,7 +31,7 @@ brew install poppler
 ```
 
 ### II. Running the Application
-Start the application by running:
+Navigate to the root of the repository and run:
    ```bash
    python -m src/main.py
    ```
@@ -42,7 +40,7 @@ Upon opening the web interface, you will see 2 options: *Add New Instruction Boo
 
 ### III. Add New Instruction Book
 Use the web interface to upload your experiment instruction book in PDF format. Here, you have to specify:
-- **Directory Name**: The name of the directory where the book will be stored.
+- **Book Name**: The name of the directory where the book will be stored.
 - **Vision Language Model Name**: The name of the VLM to be used for processing the book. Here, we recommend **qwen2.5-vl-72b-instruct** for users who have access to **infini-ai**.
 - **API Key**: The API key for the VLM service.
 - **Base URL**: The base URL for the VLM service. For users using **infini-ai**, it is `https://cloud.infini-ai.com/maas/v1/`.
@@ -52,7 +50,7 @@ If the book is successfully processed, it will be stored in the `books` director
 
 ### IV. Write Reports
 Use the web interface to write reports by uploading the CSV files containing experimental data. Here, you have to specify:
-- **Directory Name**: The name of the directory where the relevant book is stored.
+- **Reference Book Name**: The name of the directory where the relevant book is stored.
 - **Title of the Report**: The title of the lab report, which will be used to locate the relevant content in the book.
 - **Chat Model Name**: The name of the chat model to be used for generating the report. Here, we recommend **deepseek-v3** for users who have access to **infini-ai**.
 - **Description of Your CSV Files**: A brief description of the CSV files you are uploading, which will help the model understand the context of the data. ***You need to specify the experiment and what is in each CSV file.***
